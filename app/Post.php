@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Category;
 use App\User;
+use App\Comment;
 class Post extends Model
 {
     public $guarded = [''];
@@ -20,6 +21,10 @@ class Post extends Model
     public  function getRouteKeyName()
     {
         return 'slug';
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
 }
