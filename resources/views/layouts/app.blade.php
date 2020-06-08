@@ -109,7 +109,8 @@
 <!--modals-->
 <!-- Bootstrap core JavaScript -->
 <script src="{{asset('assets/js/jquery.min.js')}}"></script>
-<script src="{{asset('assets/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('assets/js/jquery.min.js')}}"></script>
+<script src="{{asset('../js/app.js')}}"></script>
 <script>
     $(document).ready(function(){
         $('.switch-tologin-modal').on('click',function(){

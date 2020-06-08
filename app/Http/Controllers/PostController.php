@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Post;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
 class PostController extends Controller
 {
     /**
@@ -14,7 +14,13 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::latest()->with('user')->get();
+        foreach($posts as $post){
+            // $post->setAttribute('Auther',$post->user->name);
+            $post->setAttribute('comment_count',$post->comments->count());
+            $post->setAttribute('added_at',$post->created_at->diffForHumans());
+        }
+        return response()->json($posts);
     }
 
     /**
@@ -46,7 +52,28 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return response()->json([
+            'id' => $post->id,
+            'slug' => $post->slug,
+            'body' => $post->body,
+            'added_at' => $post->created_at->diffForHumans(),
+            'comment_count' => $post->comments->count(),
+            'image' => $post->image,
+            'title' => $post->title,
+            'category' => $post->category,
+            'comments' => $this->commentsFormatted($post->comments)
+        ]);
+    }
+   public function commentsFormatted($comments){
+        $new_comments =[];
+        foreach($comments as $comment){
+            array_push($new_comments,[
+                'id' => $comments->id,
+                'content' => $comments->content,
+                'user' => $comments->user,
+                'added_at' => $comments->created_at->diffForHumans()
+            ]);
+        }
     }
 
     /**

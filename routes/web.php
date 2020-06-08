@@ -17,7 +17,7 @@ Route::get('/admin', function () {
     return view('admin.index');
 });
 Route::get('/', function () {
-    return view('home');
+    return view('front.index');
 });
 
 Auth::routes();
