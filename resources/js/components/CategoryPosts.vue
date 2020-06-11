@@ -54,33 +54,29 @@
           </div>
         </div>
       </div>
-      <!-- Categories Widget -->
-      <categories></categories>
     </div>
   </div>
 </template>
 
 <script>
-import categories from "./Categories";
 export default {
   data() {
     return {
       posts: []
     };
   },
-  components: {
-    categories
-  },
+  components: {},
   mounted() {
     //console.log("Component mounted.");
     this.getPost();
   },
   methods: {
     getPost() {
-      axios.get("/api/posts")
+      axios
+        .get('/api/category/' + this.$route.params.slug + '/posts')
         .then(response => {
           this.posts = response.data;
-         // console.log(response.data);
+          // console.log(response.data);
         })
         .catch(error => {
           console.log(error);

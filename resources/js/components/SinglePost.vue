@@ -1,49 +1,122 @@
 <template>
-    <div class="container" >
+  <div class="container">
+    <div class="col-lg-12">
+      <!-- Title -->
+      <h1 class="mt-4">{{ post.title }}</h1>
 
-        <div class="media simple-post" v-for="post in posts" :key="post.id" >
-                <img class="mr-3" :src="'assets/img/'+post.image" alt="Generic placeholder image">
-                <div class="media-body">
-                    <h4 class="mt-0"><a :href="'/post/'+post.slug">{{post.title}}</a></h4>
-                   {{post.body.substr(0,50)}}...
-                    <ul class="list-inline list-unstyled d-flex post-info">
-                        <li><span><i class="fa fa-user"></i> Posted By : <strong class="text-primary">{{post.user.name}}</strong> </span></li>
-                        <li>|</li>
-                        <li><span><i class="fa fa-calendar"></i> {{post.added_at}} </span></li>
-                        <li>|</li>
-                        <span><i class="fa fa-comment"></i> {{post.comment_count}} Comments</span>
+      <!-- Category -->
+      <p>
+        Category :
+        <strong
+          class=" alert alert-info"
+          style="width: fit-content;
+        padding: 5px;
+        color: #142d31;"
+          v-if="post.category"
+          ><router-link :to="{ name: 'CategoryPosts', params: { slug: post.category.slug } }">{{ post.category.name }}</router-link>
+        </strong>
+      </p>
 
-                    </ul>
-                </div>
+      <p></p>
+
+      <hr />
+
+      <!-- Date/Time -->
+      <p>
+        Posted by :
+        <strong class="badge badge-primary p-1">{{ post.auther }}</strong> At :
+        <strong class="badge badge-danger p-1"> {{ post.added_at }}</strong>
+        <span class="float-right"
+          ><strong class="badge badge-info p-1">{{
+            post.comment_count
+          }}</strong>
+          Comments</span
+        >
+      </p>
+
+      <hr />
+
+      <!-- Preview Image -->
+      <img
+        class="img-fluid rounded"
+        :src="'/assets/img/' + post.image"
+        style="width:900px;max-height:300px"
+        alt=""
+      />
+
+      <hr />
+
+      <!-- Post Content -->
+      <p class="lead">{{ post.body }}</p>
+
+      <hr />
+
+      <!-- Comments Form -->
+      <div class="card my-4">
+        <h5 class="card-header">Leave a Comment:</h5>
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+              <textarea class="form-control" rows="3"></textarea>
             </div>
-            
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
 
+      <!-- Single Comment -->
+      <div
+        class="media mb-4"
+        v-for="(comment, index) in post.comments"
+        :key="index"
+      >
+        <img
+          class="d-flex mr-3 rounded-circle"
+          :src="'/assets/img/profile/' + comment.user_comment['profile_img']"
+          style="width:70px;"
+          alt=""
+        />
+        <div class="media-body">
+          <h5 class="mt-0" v-if="comment.user_comment">
+            {{ comment.user_comment.name }}
+          </h5>
+          <p>
+            Posted on
+            <strong class="badge badge-primary p-1">{{
+              comment.added_at
+            }}</strong>
+            <!--at <strong class="badge badge-danger p-1"> 12:00 PM</strong></p>-->
+          </p>
+          <p>{{ comment.content }}</p>
+        </div>
+      </div>
     </div>
-    
+  </div>
 </template>
 
 <script>
-    export default {
-        data(){
-            return{
-                posts:[]
-            }
-        },
-        mounted() {
-            console.log('Component mounted.')
-            this.getPost();
-        },
-        methods:{
-            getPost(){
-                axios.get('api/posts')
-                .then(response =>{
-                    this.posts = response.data;
-                    console.log(response.data);
-                })
-                .catch(error =>{
-                    console.log(error);
-                });
-            }
-        }
+export default {
+  data() {
+    return {
+      post: []
+    };
+  },
+  mounted() {
+    //console.log("Component mounted." + this.$route.params.slug);
+    this.getSinglePost();
+  },
+  methods: {
+    getSinglePost() {
+      axios
+        .get("/api/posts/" + this.$route.params.slug)
+        .then(response => {
+          this.post = response.data;
+          //console.log(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
+  }
+};
 </script>
