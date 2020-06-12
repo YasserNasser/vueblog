@@ -43,6 +43,11 @@
 
     </div>
     <!-- /.row -->
-
+<!--modals-->
+<!--register-->
+<register></register>
+<!--login-->
+<login></login>
+<!--modals-->
 </div>
 @endsection('content)

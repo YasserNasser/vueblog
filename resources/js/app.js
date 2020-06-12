@@ -21,6 +21,8 @@ window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('posts', require('./components/Posts.vue').default);
+Vue.component('register', require('./components/Register.vue').default);
+Vue.component('login', require('./components/Login.vue').default);
 Vue.component('pagination', require('laravel-vue-pagination'));
 
 
@@ -29,7 +31,7 @@ Vue.component('pagination', require('laravel-vue-pagination'));
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-import router from './components/routes/routes';
+import router from '../routes/routes'
 
 const app = new Vue({
     el: '#app',

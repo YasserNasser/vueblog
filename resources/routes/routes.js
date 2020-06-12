@@ -3,9 +3,9 @@ import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
 
-import Posts from '../../components/Posts.vue';
-import SinglePost from '../../components/SinglePost.vue';
-import CategoryPosts from '../../components/CategoryPosts.vue';
+import Posts from '../../resources/js/components/Posts.vue';
+import SinglePost from '../../resources/js/components/SinglePost.vue';
+import CategoryPosts from '../../resources/js/components/CategoryPosts.vue';
 
 const routes = [
 
