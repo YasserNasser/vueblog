@@ -6,6 +6,7 @@ use App\Category;
 use App\Post;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+
 class PostController extends Controller
 {
     /**
@@ -16,10 +17,10 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::latest()->with('user')->get();
-        foreach($posts as $post){
+        foreach ($posts as $post) {
             // $post->setAttribute('Auther',$post->user->name);
-            $post->setAttribute('comment_count',$post->comments->count());
-            $post->setAttribute('added_at',$post->created_at->diffForHumans());
+            $post->setAttribute('comment_count', $post->comments->count());
+            $post->setAttribute('added_at', $post->created_at->diffForHumans());
         }
         return response()->json($posts);
     }
@@ -68,18 +69,18 @@ class PostController extends Controller
             'auther' => $post->user->name
         ]);
     }
-   public function commentsFormatted($comments){
-        $new_comments =[];
-        foreach($comments as $comment){
-            array_push($new_comments,[
+    public function commentsFormatted($comments)
+    {
+        $new_comments = [];
+        foreach ($comments as $comment) {
+            array_push($new_comments, [
                 'id' => $comment->id,
                 'content' => $comment->content,
                 'user_comment' => $comment->user,
                 'added_at' => $comment->created_at->diffForHumans(),
             ]);
         }
-            return $new_comments;
-        
+        return $new_comments;
     }
 
     /**
@@ -115,15 +116,26 @@ class PostController extends Controller
     {
         //
     }
-    public function categoryPosts($slug){
-        $category = Category::whereSlug($slug)->first();
-        $posts = Post::whereCategoryId($category->id)->with('user')->get();
-        foreach($posts as $post){
+    public function searchPosts($query)
+    {
+        $posts = Post::where('title', 'like', '%' . $query . '%')
+            ->orWhere('body', 'like', '%' . $query . '%')->with('user')->get();
+        foreach ($posts as $post) {
             // $post->setAttribute('Auther',$post->user->name);
-            $post->setAttribute('comment_count',$post->comments->count());
-            $post->setAttribute('added_at',$post->created_at->diffForHumans());
+            $post->setAttribute('comment_count', $post->comments->count());
+            $post->setAttribute('added_at', $post->created_at->diffForHumans());
         }
         return response()->json($posts);
-
+    }
+    public function categoryPosts($slug)
+    {
+        $category = Category::whereSlug($slug)->first();
+        $posts = Post::whereCategoryId($category->id)->with('user')->get();
+        foreach ($posts as $post) {
+            // $post->setAttribute('Auther',$post->user->name);
+            $post->setAttribute('comment_count', $post->comments->count());
+            $post->setAttribute('added_at', $post->created_at->diffForHumans());
+        }
+        return response()->json($posts);
     }
 }
