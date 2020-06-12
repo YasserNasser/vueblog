@@ -13,15 +13,9 @@
                     <form action="/examples/actions/confirmation.php" method="post" nonvalidate>
                         <h2 class="text-center">Create New Account</h2>
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="First Name" v-model="firstName">
-                            <div v-show="firstNameError" class="text-danger">
-                                FirstName Must be more than 4 Letter!!
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Last Name" v-model="lastName">
-                             <div v-show="lastNameError" class="text-danger">
-                                LastName Must be more than 4 Letter!!
+                            <input type="text" class="form-control" placeholder="Full Name" v-model="name">
+                            <div v-show="nameError" class="text-danger">
+                                name Must be more than 8 Letter!!
                             </div>
                         </div>
                         <div class="form-group">
@@ -59,20 +53,15 @@ export default {
     data (){
         return {
 
-            firstName:'',
-            lastName:'',
+            name:'',
             email:'',
             password:'',
-            
         }
         
     },
     computed: {
-        firstNameError(){
-            return this.firstName.length > 0 && this.firstName.length < 4
-        },
-        lastNameError(){
-            return this.lastName.length > 0 && this.lastName.length < 4
+        nameError(){
+            return this.name.length > 0 && this.name.length < 8
         },
         emailError(){
                 return (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.email))) && this.email.length > 0
@@ -81,13 +70,15 @@ export default {
             return this.password.length > 0 && this.password.length <= 7
         },
         isValidForm(){
-            return ( this.firstName.length > 4 && this.password.length > 8 && this.lastName.length > 4
+            return ( this.name.length > 8 && this.password.length > 8
             && (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) )
         }
     },
     methods:{
         submitRegister(){
-            console.log('submiting register form');
+            //console.log('submiting register form');
+            let {name,email,password} = this;
+            this.$store.dispatch('RegisterUser',{name,email,password});
         }
     }
 }

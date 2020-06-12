@@ -32,9 +32,59 @@ Vue.component('pagination', require('laravel-vue-pagination'));
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 import router from '../routes/routes'
+import Vuex from 'vuex'
+import Axios from 'axios';
+Vue.use(Vuex)
+const store = new Vuex.Store({
+    state:{
+        userToken: null
+    },
+    getters:{
+        isLogged(state){
+            return !!state.userToken;
+        }
+    },
+    mutations:{
+        setUserToken(state,userToken){
+            state.userToken = userToken;
+            localStorage.setItem('userToken',JSON.stringify(userToken));
+            Axios.defaults.headers.common.Authorization = `Bearer ${userToken}`
+        },
+        removeUserToken(state){
+            state.userToken = null;
+            localStorage.removeItem('userToken');
+        }
+
+    },
+    actions:{
+         RegisterUser({commit},payload){
+             axios.post('/api/register',payload)
+             .then((response) =>{
+                 console.log(response);
+                 commit('setUserToken',response.data.token);
+
+             })
+             .catch((error) =>{
+                console.log(error);
+             });
+         },
+         LoginUser({commit},payload){
+            axios.post('/api/login',payload)
+            .then((response) =>{
+                console.log(response);
+                commit('setUserToken',response.data.token);
+                
+            })
+            .catch((error) =>{
+               console.log(error);
+            });
+        }
+    }
+})
 
 const app = new Vue({
     el: '#app',
     router,
+    store:store,
     mode:'history'
 });
