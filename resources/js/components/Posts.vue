@@ -4,7 +4,7 @@
       Searching in the Posts....
     </div>
     <div class="col-md-8" v-else>
-      <div class="media simple-post" v-for="post in posts" :key="post.id">
+      <div class="media simple-post" v-for="post in posts.data" :key="post.id">
         <img
           class="mr-3"
           :src="'/assets/img/' + post.image"
@@ -38,7 +38,10 @@
           </ul>
         </div>
       </div>
-    </div>
+    
+     <!-- Pagination -->
+     <pagination :data="posts" @pagination-change-page="getPost"></pagination>
+        </div>
     <!-- Sidebar Widgets Column -->
     <div class="col-md-4">
       <!-- Search Widget -->
@@ -68,18 +71,18 @@ import categories from "./Categories";
 export default {
   data() {
     return {
-      posts: [],
+      posts: {},
       isSearching:false,
       searchposts:'',
     };
   },
   watch:{
 
-    searchposts(query){
+    searchposts(query,page){
       if(query.length > 0){
 
         this.isSearching = true;
-      axios.get('/api/searchposts/'+query)
+      axios.get("/api/searchposts/"+query+"?page="+page)
       .then((response) =>{
         this.posts = response.data;
         //console.log(response.data);
@@ -102,8 +105,9 @@ export default {
     this.getPost();
   },
   methods: {
-    getPost() {
-      axios.get("/api/posts")
+    getPost(page) {
+
+      axios.get("/api/posts?page="+page)
         .then(response => {
           this.posts = response.data;
          // console.log(response.data);

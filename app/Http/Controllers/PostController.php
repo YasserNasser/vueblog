@@ -16,7 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::latest()->with('user')->get();
+        $posts = Post::latest()->with('user')->paginate(3);
         foreach ($posts as $post) {
             // $post->setAttribute('Auther',$post->user->name);
             $post->setAttribute('comment_count', $post->comments->count());
@@ -119,7 +119,7 @@ class PostController extends Controller
     public function searchPosts($query)
     {
         $posts = Post::where('title', 'like', '%' . $query . '%')
-            ->orWhere('body', 'like', '%' . $query . '%')->with('user')->get();
+            ->orWhere('body', 'like', '%' . $query . '%')->with('user')->paginate(3);
         foreach ($posts as $post) {
             // $post->setAttribute('Auther',$post->user->name);
             $post->setAttribute('comment_count', $post->comments->count());
@@ -130,7 +130,7 @@ class PostController extends Controller
     public function categoryPosts($slug)
     {
         $category = Category::whereSlug($slug)->first();
-        $posts = Post::whereCategoryId($category->id)->with('user')->get();
+        $posts = Post::whereCategoryId($category->id)->with('user')->paginate(2);
         foreach ($posts as $post) {
             // $post->setAttribute('Auther',$post->user->name);
             $post->setAttribute('comment_count', $post->comments->count());

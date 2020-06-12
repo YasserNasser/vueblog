@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-md-8">
-      <div class="media simple-post" v-for="post in posts" :key="post.id">
+      <div class="media simple-post" v-for="post in posts.data" :key="post.id">
         <img
           class="mr-3"
           :src="'/assets/img/' + post.image"
@@ -35,6 +35,7 @@
           </ul>
         </div>
       </div>
+      <pagination :data="posts" @pagination-change-page="getPost"></pagination>
     </div>
     <!-- Sidebar Widgets Column -->
     <div class="col-md-4">
@@ -62,7 +63,7 @@
 export default {
   data() {
     return {
-      posts: []
+      posts: {}
     };
   },
   components: {},
@@ -71,9 +72,9 @@ export default {
     this.getPost();
   },
   methods: {
-    getPost() {
+    getPost(page) {
       axios
-        .get('/api/category/' + this.$route.params.slug + '/posts')
+        .get('/api/category/' + this.$route.params.slug + '/posts?page='+page)
         .then(response => {
           this.posts = response.data;
           // console.log(response.data);
