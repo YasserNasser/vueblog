@@ -76,7 +76,7 @@ class PostController extends Controller
             array_push($new_comments, [
                 'id' => $comment->id,
                 'content' => $comment->content,
-                'user_comment' => $comment->user,
+                'user' => $comment->user,
                 'added_at' => $comment->created_at->diffForHumans(),
             ]);
         }

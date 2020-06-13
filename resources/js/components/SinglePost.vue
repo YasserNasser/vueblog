@@ -27,9 +27,7 @@
         <strong class="badge badge-primary p-1">{{ post.auther }}</strong> At :
         <strong class="badge badge-danger p-1"> {{ post.added_at }}</strong>
         <span class="float-right"
-          ><strong class="badge badge-info p-1">{{
-            post.comment_count
-          }}</strong>
+          ><strong class="badge badge-info p-1" v-if="comments">{{comments.length}}</strong>
           Comments</span
         >
       </p>
@@ -57,9 +55,10 @@
         <div class="card-body">
           <form>
             <div class="form-group">
-              <textarea class="form-control" rows="3"></textarea>
+              <input type="hidden" v-model="post_id" >
+              <textarea class="form-control" rows="3" v-model="content"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" @click.prevent="addComment">Submit</button>
           </form>
         </div>
       </div>
@@ -72,13 +71,13 @@
       >
         <img
           class="d-flex mr-3 rounded-circle"
-          :src="'/assets/img/profile/' + comment.user_comment['profile_img']"
+          :src="'/assets/img/profile/' + comment.user['profile_img']"
           style="width:70px;"
           alt=""
         />
         <div class="media-body">
-          <h5 class="mt-0" v-if="comment.user_comment">
-            {{ comment.user_comment.name }}
+          <h5 class="mt-0" v-if="comment.user">
+            {{ comment.user.name }}
           </h5>
           <p>
             Posted on
@@ -98,12 +97,16 @@
 export default {
   data() {
     return {
-      post: []
+      post: [],
+      content:'',
+      post_id:'',
+      comments:[]
     };
   },
-  mounted() {
+  created() {
     //console.log("Component mounted." + this.$route.params.slug);
     this.getSinglePost();
+    this.updateToken();
   },
   methods: {
     getSinglePost() {
@@ -111,11 +114,33 @@ export default {
         .get("/api/posts/" + this.$route.params.slug)
         .then(response => {
           this.post = response.data;
+          this.post_id = this.post.id;
+          this.comments = this.post.comments;
           //console.log(response.data);
         })
         .catch(error => {
           console.log(error);
         });
+    },
+    addComment() {
+      let {content,post_id} = this;
+      axios.post("/api/comment/create",{content,post_id})
+        .then((response) => {
+          this.comments.unshift(response.data);
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    updateToken(){
+      let token = JSON.parse(localStorage.getItem('userToken'));
+      this.$store.commit('setUserToken',token);
+    }
+  },
+  computed:{
+    isLogged(){
+      return this.$store.getters.isLogged;
     }
   }
 };

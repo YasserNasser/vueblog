@@ -27,6 +27,7 @@ Route::post('register', 'UserController@register');
  
 Route::middleware('auth:api')->group(function () {
     Route::get('user', 'UserController@details');
+    Route::post('comment/create','CommentController@store');
  
    
 });

@@ -2520,26 +2520,56 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      post: []
+      post: [],
+      content: '',
+      post_id: '',
+      comments: []
     };
   },
-  mounted: function mounted() {
+  created: function created() {
     //console.log("Component mounted." + this.$route.params.slug);
     this.getSinglePost();
+    this.updateToken();
   },
   methods: {
     getSinglePost: function getSinglePost() {
       var _this = this;
 
       axios.get("/api/posts/" + this.$route.params.slug).then(function (response) {
-        _this.post = response.data; //console.log(response.data);
+        _this.post = response.data;
+        _this.post_id = _this.post.id;
+        _this.comments = _this.post.comments; //console.log(response.data);
       })["catch"](function (error) {
         console.log(error);
       });
+    },
+    addComment: function addComment() {
+      var _this2 = this;
+
+      var content = this.content,
+          post_id = this.post_id;
+      axios.post("/api/comment/create", {
+        content: content,
+        post_id: post_id
+      }).then(function (response) {
+        _this2.comments.unshift(response.data);
+
+        console.log(response.data);
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    updateToken: function updateToken() {
+      var token = JSON.parse(localStorage.getItem('userToken'));
+      this.$store.commit('setUserToken', token);
+    }
+  },
+  computed: {
+    isLogged: function isLogged() {
+      return this.$store.getters.isLogged;
     }
   }
 });
@@ -39649,9 +39679,11 @@ var render = function() {
           ]),
           _vm._v(" "),
           _c("span", { staticClass: "float-right" }, [
-            _c("strong", { staticClass: "badge badge-info p-1" }, [
-              _vm._v(_vm._s(_vm.post.comment_count))
-            ]),
+            _vm.comments
+              ? _c("strong", { staticClass: "badge badge-info p-1" }, [
+                  _vm._v(_vm._s(_vm.comments.length))
+                ])
+              : _vm._e(),
             _vm._v("\n        Comments")
           ])
         ]),
@@ -39670,7 +39702,75 @@ var render = function() {
         _vm._v(" "),
         _c("hr"),
         _vm._v(" "),
-        _vm._m(0),
+        _c("div", { staticClass: "card my-4" }, [
+          _c("h5", { staticClass: "card-header" }, [
+            _vm._v("Leave a Comment:")
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("form", [
+              _c("div", { staticClass: "form-group" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.post_id,
+                      expression: "post_id"
+                    }
+                  ],
+                  attrs: { type: "hidden" },
+                  domProps: { value: _vm.post_id },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.post_id = $event.target.value
+                    }
+                  }
+                }),
+                _vm._v(" "),
+                _c("textarea", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.content,
+                      expression: "content"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { rows: "3" },
+                  domProps: { value: _vm.content },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.content = $event.target.value
+                    }
+                  }
+                })
+              ]),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-primary",
+                  attrs: { type: "submit" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.addComment($event)
+                    }
+                  }
+                },
+                [_vm._v("Submit")]
+              )
+            ])
+          ])
+        ]),
         _vm._v(" "),
         _vm._l(_vm.post.comments, function(comment, index) {
           return _c("div", { key: index, staticClass: "media mb-4" }, [
@@ -39678,19 +39778,16 @@ var render = function() {
               staticClass: "d-flex mr-3 rounded-circle",
               staticStyle: { width: "70px" },
               attrs: {
-                src:
-                  "/assets/img/profile/" + comment.user_comment["profile_img"],
+                src: "/assets/img/profile/" + comment.user["profile_img"],
                 alt: ""
               }
             }),
             _vm._v(" "),
             _c("div", { staticClass: "media-body" }, [
-              comment.user_comment
+              comment.user
                 ? _c("h5", { staticClass: "mt-0" }, [
                     _vm._v(
-                      "\n          " +
-                        _vm._s(comment.user_comment.name) +
-                        "\n        "
+                      "\n          " + _vm._s(comment.user.name) + "\n        "
                     )
                   ])
                 : _vm._e(),
@@ -39711,33 +39808,7 @@ var render = function() {
     )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card my-4" }, [
-      _c("h5", { staticClass: "card-header" }, [_vm._v("Leave a Comment:")]),
-      _vm._v(" "),
-      _c("div", { staticClass: "card-body" }, [
-        _c("form", [
-          _c("div", { staticClass: "form-group" }, [
-            _c("textarea", {
-              staticClass: "form-control",
-              attrs: { rows: "3" }
-            })
-          ]),
-          _vm._v(" "),
-          _c(
-            "button",
-            { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-            [_vm._v("Submit")]
-          )
-        ])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
