@@ -8,7 +8,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Blog Home - Start Bootstrap Template</title>
+    <title>Vue Laravel Blog </title>
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <!-- Bootstrap core CSS -->
     <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet">
@@ -22,7 +27,7 @@
 <body>
 
 <!-- Navigation -->
-@include('front.includs.header')
+{{-- @include('front.includs.header') --}}
 
 
 <!-- Page Content -->

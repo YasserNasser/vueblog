@@ -1,5 +1,6 @@
 <template>
   <div class="row">
+    <home></home>
     <div class="col-md-8" v-if="isSearching">
       Searching in the Posts....
     </div>
