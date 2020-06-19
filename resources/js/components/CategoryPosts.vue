@@ -4,7 +4,7 @@
       <div class="media simple-post" v-for="post in posts.data" :key="post.id">
         <img
           class="mr-3"
-          :src="'/assets/img/' + post.image"
+          :src="'/img/' + post.image" 
           alt="Generic placeholder image"
         />
         <div class="media-body">

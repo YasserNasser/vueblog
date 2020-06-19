@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 use App\Post;
+use App\Category;
+use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -17,5 +20,44 @@ class AdminController extends Controller
             $post->setAttribute('category', $post->category);
         }
         return response()->json($posts);
+    }
+    public function getCategories(){
+        $categories = Category::all();
+        return response()->json($categories);
+    }
+    public function addPost(Request $request){
+        $filename="";
+        if($request->hasFile('image')){
+            $filename = time().'.'.$request->image->getClientOriginalExtension();
+            $request->image->move(public_path('img'),$filename);
+        }
+        $post = Post::create([
+            'title'=>$request->title,
+            'body'=>$request->body,
+            'category_id'=>$request->category,
+            'user_id'=>Auth::id(),
+            'image'=>$filename,
+            'slug'=>Str::slug($request->title),
+        ]);
+
+        return response()->json($post);
+    }
+    public function updatePost(Request $request){
+        $post = Post::find($request->id);
+        $filename=$post->image;
+        if($request->hasFile('image')){
+            $filename = time().'.'.$request->image->getClientOriginalExtension();
+            $request->image->move(public_path('img'),$filename);
+        }
+        
+        $post->title = $request->title;
+        $post->body = $request->body;
+        $post->category_id = $request->category;
+        $post->image = $filename;
+        $post->user_id = Auth::id();
+        $post->slug = Str::slug($request->title);
+        $post ->save();
+
+        return response()->json($post);
     }
 }

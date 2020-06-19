@@ -37,7 +37,7 @@
       <!-- Preview Image -->
       <img
         class="img-fluid rounded"
-        :src="'/assets/img/' + post.image"
+        :src="'/img/' + post.image" 
         style="width:900px;max-height:300px"
         alt=""
       />
@@ -128,7 +128,8 @@ export default {
       axios.post("/api/comment/create",{content,post_id})
         .then((response) => {
           this.comments.unshift(response.data);
-          console.log(response.data);
+          this.content = '';
+          //console.log(response.data);
         })
         .catch(error => {
           console.log(error);

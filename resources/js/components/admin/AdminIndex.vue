@@ -50,14 +50,19 @@
                             <span class="badge badge-info p-1 mb-1">{{ post.category.name }}</span>
                         </td>
                         <td>
-                            <img :src="'/assets/img/' + post.image" style="width:100px;height:60px;border:1px solid #e7e7e7" alt="">
+                            <img :src="'/img/' + post.image" style="width:100px;height:60px;border:1px solid #e7e7e7" alt="">
                         </td>
                         <td>{{ post.user.name }}</td>
                         <td>
-                            <a href="#editPostModal" class="edit" 
+                            <a href="#editPostModal" class="edit" @click="editPost(post,$event)"
 							 data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
                             <a href="#deletePostModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                            <router-link  :to="'/post/'" class="" target="_blank"><i class="material-icons" data-toggle="tooltip" title="Delete">&#128065;</i></router-link>
+							<!-- <router-link
+              :to="{ name: 'SinglePost', params: { slug: post.slug } }"
+            >
+              {{ post.title }}
+            </router-link> -->
+                            <router-link  :to="{ name: 'SinglePost', params: { slug: post.slug } }" class="" target="_blank"><i class="material-icons" data-toggle="tooltip" title="Delete">&#128065;</i></router-link>
                         </td>
                     </tr>
 
@@ -71,7 +76,7 @@
             </div>
         </div>
     </div>
-	<!-- Edit Modal HTML -->
+	<!-- Add Post Modal HTML -->
 	<div id="addPostModal" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -83,37 +88,37 @@
 					<div class="modal-body">
 						<div class="form-group">
 							<label>title</label>
-							<input type="text" class="form-control" required >
+							<input type="text" class="form-control" required v-model="title">
 						</div>
 						<div class="form-group">
 							<label>body</label>
-							<textarea name=""  cols="30" class="form-control" 
+							<textarea v-model="body"  cols="30" class="form-control" 
                             rows="10"></textarea>
 						</div>
 						<div class="form-group">
 							<label>category</label>
-							<select name="" class="form-control" >
+							<select name="" class="form-control" v-model="category" >
                                 <option value="0" disabled selected>choose category</option>
 
-                                <!-- <option :value="category.id" v-for="category in categories" :key="category.id">
+                                <option :value="category.id" v-for="category in categories" :key="category.id">
 								 {{ category.name }}
-								</option> -->
+								</option>
                             </select>
 						</div>
 						<div class="form-group">
 							<label>image</label>
-							<input type="file" class="form-control" required  >
+							<input type="file" class="form-control" required  @change="onImageChange" >
 						</div>
 					</div>
 					<div class="modal-footer">
 						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-						<input type="submit" class="btn btn-success" value="Add" @click.prevent="">
+						<input type="submit" class="btn btn-success" value="Add" @click.prevent="addPost">
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
-   <!-- <editpost></editpost> -->
+   <editpost></editpost>
 	<!-- Delete Modal HTML -->
 	<div id="deletePostModal" class="modal fade">
 		<div class="modal-dialog">
@@ -159,14 +164,24 @@
 
 <script>
 import $ from 'jquery'
+import editpost from './EditPost'
 export default {
   data() {
     return {
-      posts: {},
+	  posts: {},
+	  title:'',
+	  body:'',
+	  category:'',
+	  categories:[],
+	  image:'',
+	  
+
       
     }
   },
- 
+ components:{
+	 editpost
+ },
  methods: {
     getPost(page) {
 		if(!page){
@@ -182,10 +197,59 @@ export default {
         .catch(error => {
           console.log(error);
         });
-    }
+	},
+	getCategories(){
+		axios.get("/api/admin/categories")
+        .then(response => {
+          this.categories = response.data;
+         // console.log(response.data);
+         localStorage.setItem('categories',JSON.stringify(this.categories));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+	},
+	onImageChange(e){
+		this.image = e.target.files[0];
+	},
+	addPost(){
+		let config ={
+			headers:{"content-type" : 'multipart/form-data'}
+		}
+		let formdata = new FormData();
+		formdata.append('title',this.title);
+		formdata.append('body',this.body);
+		formdata.append('image',this.image);
+		formdata.append('category',this.category);
+		
+		axios.post("/api/admin/addPost",formdata,config)
+        .then(response => {
+
+		 // this.categories = response.data;
+		  this.title = '';
+		  this.body = '';
+		  this.image = '';
+		  this.category = '';
+		  $('#addPostModal').modal('hide');
+		  this.posts.data += response.data;
+		 // console.log(response.data);
+		 //let oldpost = JSON.parse(localStorage.getItem('posts'));
+		//this.posts.concat(response.data.data);
+		console.log(response.data);
+		console.log(this.posts);
+         //localStorage.setItem('categories',JSON.stringify(this.categories));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+	},
+	editPost(post){
+		this.$store.commit('EditPost',post);
+	}
   },
   created(){
-	  this.getPost()
+	  this.getPost();
+	  this.getCategories();
   },
 
 // $(document).ready(function(){
