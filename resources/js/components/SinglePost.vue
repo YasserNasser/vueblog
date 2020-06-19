@@ -50,7 +50,7 @@
       <hr />
 
       <!-- Comments Form -->
-      <div class="card my-4">
+      <div  class="card my-4">
         <h5 class="card-header">Leave a Comment:</h5>
         <div class="card-body">
           <form>
@@ -58,7 +58,8 @@
               <input type="hidden" v-model="post_id" >
               <textarea class="form-control" rows="3" v-model="content"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" @click.prevent="addComment">Submit</button>
+            <button v-if="isLogged" type="submit" class="btn btn-primary" @click.prevent="addComment">Submit</button>
+            <p v-else class="lead">Login to active write comments</p>
           </form>
         </div>
       </div>

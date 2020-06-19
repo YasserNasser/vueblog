@@ -70,6 +70,7 @@
   </div>
 </template>
 <script>
+import $ from 'jquery'
 export default {
   data() {
     return {
@@ -96,6 +97,8 @@ export default {
       //console.log("submiting Login form");
       let {email,password} = this;
       this.$store.dispatch('LoginUser',{email,password});
+      $('#login-modal').modal('hide')
+
     }
   }
 }

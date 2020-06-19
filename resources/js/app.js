@@ -38,11 +38,18 @@ import Axios from 'axios';
 Vue.use(Vuex)
 const store = new Vuex.Store({
     state:{
-        userToken: null
+        userToken: null,
+        user : null
     },
     getters:{
         isLogged(state){
             return !!state.userToken;
+        },
+        isAdmin(state){
+            if(state.user){
+                return state.user.is_admin;
+            }
+            return null;
         }
     },
     mutations:{
@@ -54,6 +61,14 @@ const store = new Vuex.Store({
         removeUserToken(state){
             state.userToken = null;
             localStorage.removeItem('userToken');
+        },
+        setUser(state,user){
+            state.user = user;
+        },
+        logout(state){
+            state.userToken = null;
+            localStorage.removeItem('userToken');
+            window.location.pathname = "/";
         }
 
     },
@@ -74,7 +89,13 @@ const store = new Vuex.Store({
             .then((response) =>{
                 console.log(response);
                 commit('setUserToken',response.data.token);
-                
+                axios.get('/api/user')
+                .then((res) =>{
+                    console.log(res.data);
+                })
+                .catch((err) =>{
+                    console.log(err);
+                 });
             })
             .catch((error) =>{
                console.log(error);

@@ -48,7 +48,7 @@
 
 </template>
 <script >
-
+import $ from 'jquery'
 export default {
     data (){
         return {
@@ -79,6 +79,7 @@ export default {
             //console.log('submiting register form');
             let {name,email,password} = this;
             this.$store.dispatch('RegisterUser',{name,email,password});
+            $('#register-modal').modal('hide')
         }
     }
 }

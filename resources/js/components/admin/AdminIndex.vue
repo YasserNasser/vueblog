@@ -12,8 +12,8 @@
 
 						<a href="#deletePostModal"  
 						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>
-						<a href="#deletePostModalnopost"  
-						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>
+						<!-- <a href="#deletePostModalnopost"  
+						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a> -->
 					</div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
                     </tr>
                 </thead>
                 <tbody >
-                    <tr >
+                    <tr v-for="post in posts.data" :key="post.id" >
 						<td>
 							<span class="custom-checkbox">
 								<input type="checkbox" :id="'checkbox1'" @click.stop=""
@@ -44,15 +44,15 @@
 								<label :for="'checkbox1'"></label>
 							</span>
 						</td>
-                        <td></td>
-                        <td></td>
-						<td>
-                            <span class="badge badge-info p-1 mb-1">{{  }}</span>
+                        <td >{{ post.title }}</td>
+                        <td>{{ post.body.substr(0,35) }}...</td>
+						<td v-if="post.category">
+                            <span class="badge badge-info p-1 mb-1">{{ post.category.name }}</span>
                         </td>
                         <td>
-                            <img :src="'img/'" style="width:100px;height:60px;border:1px solid #e7e7e7" alt="">
+                            <img :src="'/assets/img/' + post.image" style="width:100px;height:60px;border:1px solid #e7e7e7" alt="">
                         </td>
-                        <td>{{  }}</td>
+                        <td>{{ post.user.name }}</td>
                         <td>
                             <a href="#editPostModal" class="edit" 
 							 data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
@@ -66,7 +66,8 @@
             </table>
 			<div class="clearfix">
                 <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
-                <!-- <pagination ></pagination> -->
+                <!-- Pagination -->
+     			<pagination :data="posts" @pagination-change-page="getPost"></pagination>
             </div>
         </div>
     </div>
@@ -157,35 +158,59 @@
 </template>
 
 <script>
-
+import $ from 'jquery'
 export default {
-  
-  }
+  data() {
+    return {
+      posts: {},
+      
+    }
+  },
  
+ methods: {
+    getPost(page) {
+		if(!page){
+			page =1;
+			}
 
-$(document).ready(function(){
-	// Activate tooltip
-	$('[data-toggle="tooltip"]').tooltip();
-	// Select/Deselect checkboxes
-	var checkbox = $('table tbody input[type="checkbox"]');
-	$("#selectAll").click(function(){
-		if(this.checked){
-			checkbox.each(function(){
-				this.checked = true;
-			});
-		} else{
-			checkbox.each(function(){
-				this.checked = false;
-			});
-		}
-	});
-	checkbox.click(function(){
-		if(!this.checked){
-			$("#selectAll").prop("checked", false);
-		}
-	});
-});
+      axios.get("/api/admin/posts?page="+page)
+        .then(response => {
+          this.posts = response.data;
+         // console.log(response.data);
+         localStorage.setItem('posts',JSON.stringify(this.posts));
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  },
+  created(){
+	  this.getPost()
+  },
 
+// $(document).ready(function(){
+// 	// Activate tooltip
+// 	$('[data-toggle="tooltip"]').tooltip();
+// 	// Select/Deselect checkboxes
+// 	var checkbox = $('table tbody input[type="checkbox"]');
+// 	$("#selectAll").click(function(){
+// 		if(this.checked){
+// 			checkbox.each(function(){
+// 				this.checked = true;
+// 			});
+// 		} else{
+// 			checkbox.each(function(){
+// 				this.checked = false;
+// 			});
+// 		}
+// 	});
+// 	checkbox.click(function(){
+// 		if(!this.checked){
+// 			$("#selectAll").prop("checked", false);
+// 		}
+// 	});
+// });
+}
 </script>
 <style type="text/css" scoped>
     #cont {

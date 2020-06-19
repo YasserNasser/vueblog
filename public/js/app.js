@@ -2121,9 +2121,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {};
+    return {
+      user: ''
+    };
+  },
+  created: function created() {
+    this.updateToken();
+    this.setUser();
+  },
+  computed: {
+    isLogged: function isLogged() {
+      return this.$store.getters.isLogged;
+    },
+    isAdmin: function isAdmin() {
+      return this.$store.getters.isAdmin;
+    }
+  },
+  methods: {
+    updateToken: function updateToken() {
+      var token = JSON.parse(localStorage.getItem('userToken'));
+      this.$store.commit('setUserToken', token);
+    },
+    logout: function logout() {
+      var token = null;
+      this.$store.commit('logout');
+    },
+    setUser: function setUser() {
+      var _this = this;
+
+      if (this.isLogged) {
+        axios.get('/api/user').then(function (res) {
+          _this.user = res.data.user;
+
+          _this.$store.commit('setUser', res.data.user);
+        })["catch"](function (err) {
+          console.log(err);
+        });
+      }
+    }
   }
 });
 
@@ -2138,6 +2178,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
 //
 //
 //
@@ -2209,6 +2251,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2236,6 +2279,7 @@ __webpack_require__.r(__webpack_exports__);
         email: email,
         password: password
       });
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#login-modal').modal('hide');
     }
   }
 });
@@ -2381,6 +2425,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
 //
 //
 //
@@ -2430,6 +2476,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2463,6 +2510,7 @@ __webpack_require__.r(__webpack_exports__);
         email: email,
         password: password
       });
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#register-modal').modal('hide');
     }
   }
 });
@@ -2478,6 +2526,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
 //
 //
 //
@@ -2638,6 +2687,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
 //
 //
 //
@@ -2796,28 +2847,56 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-/* harmony default export */ __webpack_exports__["default"] = ({});
-$(document).ready(function () {
-  // Activate tooltip
-  $('[data-toggle="tooltip"]').tooltip(); // Select/Deselect checkboxes
+//
 
-  var checkbox = $('table tbody input[type="checkbox"]');
-  $("#selectAll").click(function () {
-    if (this.checked) {
-      checkbox.each(function () {
-        this.checked = true;
-      });
-    } else {
-      checkbox.each(function () {
-        this.checked = false;
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      posts: {}
+    };
+  },
+  methods: {
+    getPost: function getPost(page) {
+      var _this = this;
+
+      if (!page) {
+        page = 1;
+      }
+
+      axios.get("/api/admin/posts?page=" + page).then(function (response) {
+        _this.posts = response.data; // console.log(response.data);
+
+        localStorage.setItem('posts', JSON.stringify(_this.posts));
+      })["catch"](function (error) {
+        console.log(error);
       });
     }
-  });
-  checkbox.click(function () {
-    if (!this.checked) {
-      $("#selectAll").prop("checked", false);
-    }
-  });
+  },
+  created: function created() {
+    this.getPost();
+  } // $(document).ready(function(){
+  // 	// Activate tooltip
+  // 	$('[data-toggle="tooltip"]').tooltip();
+  // 	// Select/Deselect checkboxes
+  // 	var checkbox = $('table tbody input[type="checkbox"]');
+  // 	$("#selectAll").click(function(){
+  // 		if(this.checked){
+  // 			checkbox.each(function(){
+  // 				this.checked = true;
+  // 			});
+  // 		} else{
+  // 			checkbox.each(function(){
+  // 				this.checked = false;
+  // 			});
+  // 		}
+  // 	});
+  // 	checkbox.click(function(){
+  // 		if(!this.checked){
+  // 			$("#selectAll").prop("checked", false);
+  // 		}
+  // 	});
+  // });
+
 });
 
 /***/ }),
@@ -39860,9 +39939,11 @@ var render = function() {
         },
         [
           _c("div", { staticClass: "container" }, [
-            _c("a", { staticClass: "navbar-brand", attrs: { href: "#" } }, [
-              _vm._v("Ayat Amine")
-            ]),
+            _vm.isLogged
+              ? _c("a", { staticClass: "navbar-brand", attrs: { href: "#" } }, [
+                  _vm._v(_vm._s(_vm.user.name))
+                ])
+              : _vm._e(),
             _vm._v(" "),
             _vm._m(0),
             _vm._v(" "),
@@ -39892,24 +39973,101 @@ var render = function() {
                     1
                   ),
                   _vm._v(" "),
-                  _c(
-                    "li",
-                    { staticClass: "nav-item" },
-                    [
-                      _c(
-                        "router-link",
-                        { staticClass: "nav-link", attrs: { to: "/admin" } },
-                        [_vm._v("admin")]
+                  _vm.isAdmin
+                    ? _c(
+                        "li",
+                        { staticClass: "nav-item" },
+                        [
+                          _c(
+                            "router-link",
+                            {
+                              staticClass: "nav-link",
+                              attrs: { to: "/admin" }
+                            },
+                            [_vm._v("admin")]
+                          )
+                        ],
+                        1
                       )
-                    ],
-                    1
-                  ),
+                    : _vm._e(),
                   _vm._v(" "),
                   _vm._m(1),
                   _vm._v(" "),
-                  _vm._m(2),
+                  !_vm.isLogged
+                    ? _c(
+                        "li",
+                        {
+                          staticClass: "nav-item register-btn reg-login-btn",
+                          attrs: {
+                            "data-toggle": "modal",
+                            "data-target": "#register-modal"
+                          }
+                        },
+                        [
+                          _c(
+                            "a",
+                            {
+                              staticClass: "btn btn-info nav-link",
+                              attrs: {
+                                href: "",
+                                "data-toggle": "modal",
+                                "data-target": "#register-modal"
+                              }
+                            },
+                            [_vm._v("Register")]
+                          )
+                        ]
+                      )
+                    : _vm._e(),
                   _vm._v(" "),
-                  _vm._m(3)
+                  !_vm.isLogged
+                    ? _c(
+                        "li",
+                        {
+                          staticClass: "nav-item reg-login-btn",
+                          attrs: {
+                            "data-toggle": "modal",
+                            "data-target": "#login-modal"
+                          }
+                        },
+                        [
+                          _c(
+                            "a",
+                            {
+                              staticClass:
+                                "btn btn-primary text-weight nav-link",
+                              attrs: { href: "#" }
+                            },
+                            [_vm._v("login")]
+                          )
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.isLogged
+                    ? _c(
+                        "li",
+                        {
+                          staticClass: "nav-item reg-login-btn",
+                          on: {
+                            click: function($event) {
+                              $event.stopPropagation()
+                              return _vm.logout($event)
+                            }
+                          }
+                        },
+                        [
+                          _c(
+                            "button",
+                            {
+                              staticClass:
+                                "btn btn-primary text-weight nav-link"
+                            },
+                            [_vm._v("logout")]
+                          )
+                        ]
+                      )
+                    : _vm._e()
                 ])
               ]
             )
@@ -39952,54 +40110,6 @@ var staticRenderFns = [
         _vm._v("Contact")
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "li",
-      {
-        staticClass: "nav-item register-btn reg-login-btn",
-        attrs: { "data-toggle": "modal", "data-target": "#register-modal" }
-      },
-      [
-        _c(
-          "a",
-          {
-            staticClass: "btn btn-info nav-link",
-            attrs: {
-              href: "",
-              "data-toggle": "modal",
-              "data-target": "#register-modal"
-            }
-          },
-          [_vm._v("Register")]
-        )
-      ]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "li",
-      {
-        staticClass: "nav-item reg-login-btn",
-        attrs: { "data-toggle": "modal", "data-target": "#login-modal" }
-      },
-      [
-        _c(
-          "a",
-          {
-            staticClass: "btn btn-primary text-weight nav-link",
-            attrs: { href: "#" }
-          },
-          [_vm._v("login")]
-        )
-      ]
-    )
   }
 ]
 render._withStripped = true
@@ -40827,20 +40937,24 @@ var render = function() {
                 })
               ]),
               _vm._v(" "),
-              _c(
-                "button",
-                {
-                  staticClass: "btn btn-primary",
-                  attrs: { type: "submit" },
-                  on: {
-                    click: function($event) {
-                      $event.preventDefault()
-                      return _vm.addComment($event)
-                    }
-                  }
-                },
-                [_vm._v("Submit")]
-              )
+              _vm.isLogged
+                ? _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "submit" },
+                      on: {
+                        click: function($event) {
+                          $event.preventDefault()
+                          return _vm.addComment($event)
+                        }
+                      }
+                    },
+                    [_vm._v("Submit")]
+                  )
+                : _c("p", { staticClass: "lead" }, [
+                    _vm._v("Login to active write comments")
+                  ])
             ])
           ])
         ]),
@@ -40911,80 +41025,98 @@ var render = function() {
         _c("table", { staticClass: "table table-striped table-hover" }, [
           _vm._m(1),
           _vm._v(" "),
-          _c("tbody", [
-            _c("tr", [
-              _c("td", [
-                _c("span", { staticClass: "custom-checkbox" }, [
-                  _c("input", {
-                    attrs: {
-                      type: "checkbox",
-                      id: "checkbox1",
-                      name: "options[]",
-                      value: "1"
-                    },
-                    on: {
-                      click: function($event) {
-                        $event.stopPropagation()
+          _c(
+            "tbody",
+            _vm._l(_vm.posts.data, function(post) {
+              return _c("tr", { key: post.id }, [
+                _c("td", [
+                  _c("span", { staticClass: "custom-checkbox" }, [
+                    _c("input", {
+                      attrs: {
+                        type: "checkbox",
+                        id: "checkbox1",
+                        name: "options[]",
+                        value: "1"
+                      },
+                      on: {
+                        click: function($event) {
+                          $event.stopPropagation()
+                        }
                       }
-                    }
-                  }),
-                  _vm._v(" "),
-                  _c("label", { attrs: { for: "checkbox1" } })
-                ])
-              ]),
-              _vm._v(" "),
-              _c("td"),
-              _vm._v(" "),
-              _c("td"),
-              _vm._v(" "),
-              _c("td", [
-                _c("span", { staticClass: "badge badge-info p-1 mb-1" }, [
-                  _vm._v(_vm._s())
-                ])
-              ]),
-              _vm._v(" "),
-              _c("td", [
-                _c("img", {
-                  staticStyle: {
-                    width: "100px",
-                    height: "60px",
-                    border: "1px solid #e7e7e7"
-                  },
-                  attrs: { src: "img/", alt: "" }
-                })
-              ]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s())]),
-              _vm._v(" "),
-              _c(
-                "td",
-                [
-                  _vm._m(2),
-                  _vm._v(" "),
-                  _vm._m(3),
-                  _vm._v(" "),
-                  _c(
-                    "router-link",
-                    { attrs: { to: "/post/", target: "_blank" } },
-                    [
-                      _c(
-                        "i",
-                        {
-                          staticClass: "material-icons",
-                          attrs: { "data-toggle": "tooltip", title: "Delete" }
-                        },
-                        [_vm._v("👁")]
-                      )
-                    ]
-                  )
-                ],
-                1
-              )
-            ])
-          ])
+                    }),
+                    _vm._v(" "),
+                    _c("label", { attrs: { for: "checkbox1" } })
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(post.title))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(post.body.substr(0, 35)) + "...")]),
+                _vm._v(" "),
+                post.category
+                  ? _c("td", [
+                      _c("span", { staticClass: "badge badge-info p-1 mb-1" }, [
+                        _vm._v(_vm._s(post.category.name))
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("td", [
+                  _c("img", {
+                    staticStyle: {
+                      width: "100px",
+                      height: "60px",
+                      border: "1px solid #e7e7e7"
+                    },
+                    attrs: { src: "/assets/img/" + post.image, alt: "" }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(post.user.name))]),
+                _vm._v(" "),
+                _c(
+                  "td",
+                  [
+                    _vm._m(2, true),
+                    _vm._v(" "),
+                    _vm._m(3, true),
+                    _vm._v(" "),
+                    _c(
+                      "router-link",
+                      { attrs: { to: "/post/", target: "_blank" } },
+                      [
+                        _c(
+                          "i",
+                          {
+                            staticClass: "material-icons",
+                            attrs: { "data-toggle": "tooltip", title: "Delete" }
+                          },
+                          [_vm._v("👁")]
+                        )
+                      ]
+                    )
+                  ],
+                  1
+                )
+              ])
+            }),
+            0
+          )
         ]),
         _vm._v(" "),
-        _vm._m(4)
+        _c(
+          "div",
+          { staticClass: "clearfix" },
+          [
+            _vm._m(4),
+            _vm._v(" "),
+            _c("pagination", {
+              attrs: { data: _vm.posts },
+              on: { "pagination-change-page": _vm.getPost }
+            })
+          ],
+          1
+        )
       ])
     ]),
     _vm._v(" "),
@@ -41093,19 +41225,6 @@ var staticRenderFns = [
               _vm._v(" "),
               _c("span", [_vm._v("Delete")])
             ]
-          ),
-          _vm._v(" "),
-          _c(
-            "a",
-            {
-              staticClass: "btn btn-danger",
-              attrs: { href: "#deletePostModalnopost", "data-toggle": "modal" }
-            },
-            [
-              _c("i", { staticClass: "material-icons" }, [_vm._v("")]),
-              _vm._v(" "),
-              _c("span", [_vm._v("Delete")])
-            ]
           )
         ])
       ])
@@ -41187,14 +41306,12 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "clearfix" }, [
-      _c("div", { staticClass: "hint-text" }, [
-        _vm._v("Showing "),
-        _c("b", [_vm._v("5")]),
-        _vm._v(" out of "),
-        _c("b", [_vm._v("25")]),
-        _vm._v(" entries")
-      ])
+    return _c("div", { staticClass: "hint-text" }, [
+      _vm._v("Showing "),
+      _c("b", [_vm._v("5")]),
+      _vm._v(" out of "),
+      _c("b", [_vm._v("25")]),
+      _vm._v(" entries")
     ])
   },
   function() {
@@ -57687,11 +57804,19 @@ Vue.component('pagination', __webpack_require__(/*! laravel-vue-pagination */ ".
 Vue.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   state: {
-    userToken: null
+    userToken: null,
+    user: null
   },
   getters: {
     isLogged: function isLogged(state) {
       return !!state.userToken;
+    },
+    isAdmin: function isAdmin(state) {
+      if (state.user) {
+        return state.user.is_admin;
+      }
+
+      return null;
     }
   },
   mutations: {
@@ -57703,6 +57828,14 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     removeUserToken: function removeUserToken(state) {
       state.userToken = null;
       localStorage.removeItem('userToken');
+    },
+    setUser: function setUser(state, user) {
+      state.user = user;
+    },
+    logout: function logout(state) {
+      state.userToken = null;
+      localStorage.removeItem('userToken');
+      window.location.pathname = "/";
     }
   },
   actions: {
@@ -57720,6 +57853,11 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
       axios.post('/api/login', payload).then(function (response) {
         console.log(response);
         commit('setUserToken', response.data.token);
+        axios.get('/api/user').then(function (res) {
+          console.log(res.data);
+        })["catch"](function (err) {
+          console.log(err);
+        });
       })["catch"](function (error) {
         console.log(error);
       });
