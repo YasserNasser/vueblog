@@ -13,7 +13,7 @@ class AdminController extends Controller
         $this->middleware('admin');
     }
     public function getPost(){
-        $posts = Post::latest()->with('user')->paginate(3);
+        $posts = Post::latest()->with('user')->paginate(5);
         foreach ($posts as $post) {
             $post->setAttribute('comment_count', $post->comments->count());
             $post->setAttribute('added_at', $post->created_at->diffForHumans());
@@ -59,5 +59,15 @@ class AdminController extends Controller
         $post ->save();
 
         return response()->json($post);
+    }
+    public function deletePosts(Request $request){
+        $ids = $request->posts_ids;
+        Post::whereIn('id',$ids)->delete();
+        return response()->json(['message'=>'Posts Deleted Successfully']);
+    }
+    public function deletePost($postId){
+       
+        Post::find($postId)->delete();
+        return response()->json(['message'=>'Post Deleted Successfully']);
     }
 }

@@ -85,15 +85,20 @@ export default {
 		axios.post("/api/admin/updatePost",formdata,config)
         .then((response) => {
 
-		 // this.categories = response.data;
-		  
-		  
-		  //this.posts.data += response.data;
           this.PostToEdit.image= response.data.image;
-          $('#editPostModal').modal('hide');
+		  $('#editPostModal').modal('hide');
+		  this.$parent.getPost();
+		  toast.fire({
+                   icon: 'success',
+                   title: 'The Post Updated successfully'
+                        });
 		 
         })
         .catch((error) => {
+			toast.fire({
+                   icon: 'error',
+                   title: 'There is An Error!!'
+                        });
           console.log(error);
         });
 	}

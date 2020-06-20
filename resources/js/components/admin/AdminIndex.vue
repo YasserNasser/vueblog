@@ -10,10 +10,10 @@
 					<div class="col-sm-6">
 						<a href="#addPostModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Post</span></a>
 
-						<a href="#deletePostModal"  
+						<a href="#deletePostModal"  v-if="selectedPosts.length"
 						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>
-						<!-- <a href="#deletePostModalnopost"  
-						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a> -->
+						<a href="#deletePostModalnopost" v-if="!selectedPosts.length"
+						class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>
 					</div>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                     <tr>
 						<th>
 							<span class="custom-checkbox">
-								<input type="checkbox" 
+								<input type="checkbox" @click="selectAll"
 								 id="selectAll">
 								<label for="selectAll"></label>
 							</span>
@@ -36,12 +36,12 @@
                     </tr>
                 </thead>
                 <tbody >
-                    <tr v-for="post in posts.data" :key="post.id" >
+                    <tr v-for="(post ,index) in posts.data" :key="post.id" >
 						<td>
 							<span class="custom-checkbox">
-								<input type="checkbox" :id="'checkbox1'" @click.stop=""
+								<input type="checkbox" :id="'checkbox1'+index" @click.stop="selectPost(post,$event)"
 								name="options[]" value="1">
-								<label :for="'checkbox1'"></label>
+								<label :for="'checkbox1'+index"></label>
 							</span>
 						</td>
                         <td >{{ post.title }}</td>
@@ -56,13 +56,8 @@
                         <td>
                             <a href="#editPostModal" class="edit" @click="editPost(post,$event)"
 							 data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                            <a href="#deletePostModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-							<!-- <router-link
-              :to="{ name: 'SinglePost', params: { slug: post.slug } }"
-            >
-              {{ post.title }}
-            </router-link> -->
-                            <router-link  :to="{ name: 'SinglePost', params: { slug: post.slug } }" class="" target="_blank"><i class="material-icons" data-toggle="tooltip" title="Delete">&#128065;</i></router-link>
+                            <a  class="delete" href="#" @click.prevent="deletePost(post.id)" ><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                            <router-link  :to="{ name: 'SinglePost', params: { slug: post.slug } }" class="" target="_blank"><i class="material-icons" data-toggle="tooltip" title="Show">&#128065;</i></router-link>
                         </td>
                     </tr>
 
@@ -131,11 +126,11 @@
 					<div class="modal-body">
 						<p>Are you sure you want to delete these Records?</p>
 						<p class="text-warning"><small>This action cannot be undone.</small></p>
-						<p class="text-warning"><small>Selected Posts : <strong>{{}}</strong></small></p>
+						<p class="text-warning"><small>Selected Posts : <strong>{{selectedPosts.length}}</strong></small></p>
 					</div>
 					<div class="modal-footer">
 						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-						<input type="submit" class="btn btn-danger" @click.prevent=""
+						<input type="submit" class="btn btn-danger" @click.prevent="deletePosts"
 						value="Delete">
 					</div>
 				</form>
@@ -154,6 +149,9 @@
 					<div class="modal-body">
 						<p>No post selected !</p>
 					</div>
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+					</div>
 				</form>
 			</div>
 		</div>
@@ -168,13 +166,13 @@ import editpost from './EditPost'
 export default {
   data() {
     return {
-	  posts: {},
-	  title:'',
-	  body:'',
-	  category:'',
-	  categories:[],
-	  image:'',
-	  
+	  posts : {},
+	  title : '',
+	  body : '',
+	  category : '',
+	  categories : [],
+	  image : '',
+	  selectedPosts : [],
 
       
     }
@@ -223,30 +221,90 @@ export default {
 		formdata.append('category',this.category);
 		
 		axios.post("/api/admin/addPost",formdata,config)
-        .then(response => {
-
-		 // this.categories = response.data;
+        .then((response) => {
 		  this.title = '';
 		  this.body = '';
 		  this.image = '';
 		  this.category = '';
 		  $('#addPostModal').modal('hide');
-		  this.posts.data += response.data;
-		 // console.log(response.data);
-		 //let oldpost = JSON.parse(localStorage.getItem('posts'));
-		//this.posts.concat(response.data.data);
-		console.log(response.data);
-		console.log(this.posts);
-         //localStorage.setItem('categories',JSON.stringify(this.categories));
+		  toast.fire({
+                   icon: 'success',
+                   title: 'The Post Added successfully'
+                        });
+		 this.getPost();
         })
         .catch((error) => {
+			toast.fire({
+                   icon: 'error',
+                   title: 'Some Error Happened!!'
+                        });
           console.log(error);
         });
 	},
 	editPost(post){
 		this.$store.commit('EditPost',post);
-	}
+	},
+	selectPost(post,event){
+		let index = this.selectedPosts.indexOf(post.id);
+		if(index > -1){
+			this.selectedPosts.splice(index,1);
+			event.target.checked = false;
+		}else{
+		this.selectedPosts.push(post.id);
+			event.target.checked = true;
+		}
+		
+	},
+	selectAll(event){
+	if(event.target.checked){
+		$('input[type="checkbox"]').prop('checked',true);
+		this.posts.data.forEach((post) =>{
+			this.selectedPosts.push(post.id);
+		});
+	}else{
+		$('input[type="checkbox"]').prop('checked',false);
+		this.selectedPosts = [];
+		}
+	},
+	deletePosts(){
+		axios.post('/api/admin/deletePosts',{posts_ids:this.selectedPosts})
+        .then((response) => {
+		  $('#deletePostModal').modal('hide');
+		  $('input[type="checkbox"]').prop('checked',false);
+		   toast.fire({
+                   icon: 'success',
+                   title: 'All Posts Deleted successfully'
+                        });
+		  this.getPost();
+        })
+        .catch((error) => {
+			toast.fire({
+                            icon: 'error',
+                            title: 'There is An Error Happened!!'
+                        })
+          console.log(error);
+        });
+	
   },
+  deletePost(postId){
+		axios.delete('/api/admin/deletePost/'+postId)
+        .then((response) => {
+		
+		   toast.fire({
+                   icon: 'success',
+                   title: 'The Post Deleted successfully'
+                        });
+		  this.getPost();
+        })
+        .catch((error) => {
+			toast.fire({
+                            icon: 'error',
+                            title: 'There is An Error Happened!!'
+                        })
+          console.log(error);
+        });
+	},
+ },
   created(){
 	  this.getPost();
 	  this.getCategories();
@@ -277,6 +335,7 @@ export default {
 }
 </script>
 <style type="text/css" scoped>
+
     #cont {
         color: #566787;
 		background: #f5f5f5;

@@ -1,6 +1,6 @@
 <template>
-  <div class="row">
-    <div class="col-md-8">
+  <div class="row justify-content-center">
+    <div class="col-md-9">
       <div class="media simple-post" v-for="post in posts.data" :key="post.id">
         <img
           class="mr-3"
@@ -38,9 +38,9 @@
       <pagination :data="posts" @pagination-change-page="getPost"></pagination>
     </div>
     <!-- Sidebar Widgets Column -->
-    <div class="col-md-4">
+    <div class="col-md-3" style="min-width:200px">
       <!-- Search Widget -->
-      <div class="card my-4">
+      <div class="card my-3">
         <h5 class="card-header">Search</h5>
         <div class="card-body">
           <div class="input-group">
